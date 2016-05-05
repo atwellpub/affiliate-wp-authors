@@ -50,7 +50,7 @@ class AFFWP_Authors {
 			return;
 		}
 		
-		setcookie('ref_cookie' , 1 , time() + ( 30 * 24 * 60 * 60),'/');
+		setcookie('ref_cookie' , $affiliate_id , time() + ( 30 * 24 * 60 * 60),'/');
 		setcookie('affwp_campaign' , 'guest-publishing' , time() + ( 30 * 24 * 60 * 60) , '/');
 
 	}
