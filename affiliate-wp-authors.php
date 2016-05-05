@@ -35,18 +35,39 @@ class AFFWP_Authors {
 	*/
 	public static function load_hooks() {
 		
-		/* Add Metaboxes */
+		/* Cookie Author */ 
         add_action('wp_head', array(__CLASS__, 'cookie_author'));
 
 	}
 	
 	public static function cookie_author() {
-		global $post;
-		
+
 		$author_id = get_the_author_id();
+
+		/* if author not set then bail */
+		if (!$author_id) {
+			return;
+		}
+
+		/* get affiliate id from author id */
 		$affiliate_id = affwp_get_affiliate_id( $author_id );
-		
-		if (!$affiliate_id || isset($_COOKIE['ref_cookie']) ) {
+
+		/* do not cookie internal traffic */
+		if (preg_match('/inboundnow.com/', $_SERVER['HTTP_REFERER'])) {
+			return;
+		}
+
+		/* do not cookie rules */
+		if (
+			/* do not cookie for authors not registered as affiliates */
+			!$affiliate_id
+			||
+			/* do not cookie the cookied */
+			isset($_COOKIE['ref_cookie'])
+			||
+			/* do not cookie if we detect visitor is already a lead */
+			isset($_COOKIE['wp_lead_id'])
+		) {
 			return;
 		}
 		
