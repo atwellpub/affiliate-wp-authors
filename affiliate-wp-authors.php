@@ -46,7 +46,7 @@ class AFFWP_Authors {
 		$author_id = get_the_author_id();
 		$affiliate_id = affwp_get_affiliate_id( $author_id );
 		
-		if (!$affiliate_id || !isset($_COOKIE['ref_cookie']) ) {
+		if (!$affiliate_id || isset($_COOKIE['ref_cookie']) ) {
 			return;
 		}
 		
