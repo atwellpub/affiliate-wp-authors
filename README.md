@@ -1,5 +1,5 @@
 # affiliate-wp-authors
-Automatically cookie an author's affiliate id on content they own. Only cookies if the referrer is external. 
+Automatically cookie an author's affiliate id on content they've published. Only cookies if the referrer is external. 
 
 For private use over at http://www.inboundnow.com/blog/
 
