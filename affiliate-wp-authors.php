@@ -42,23 +42,23 @@ class AFFWP_Authors {
     }
 
     public static function cookie_author() {
-;
+        ;
         $author_id = get_the_author_id();
 
         /* if author not set then bail */
         if (!$author_id) {
             return;
         }
-		
-		
+
+
         /* get affiliate id from author id */
         $affiliate_id = affwp_get_affiliate_id($author_id);
-		
+
         /* do not cookie internal traffic */
         if (preg_match('/inboundnow.com/', $_SERVER['HTTP_REFERER'])) {
             return;
         }
-		
+
         /* do not cookie rules */
         if (
             /* do not cookie for authors not registered as affiliates */
@@ -71,38 +71,38 @@ class AFFWP_Authors {
             isset($_COOKIE['wp_lead_id'])
             ||
             /* do not cookie if homepage */
-            "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" == get_home_url()
+            strstr(is_front_page())
         ) {
             return;
         }
 
-		
-		/**/
-		$result = wp_remote_post( admin_url('admin-ajax.php') , array(
-			'method' => 'POST',
-			'timeout' => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking' => true,
-			'headers' => array(),
-			'body' => array( 
-				'action' => 'affwp_track_visit', 
-				'affiliate' => $affiliate_id, 
-				'campaign' => 'guest-publishing',
-				'url' => "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]",
-				'referrer' => $_SERVER['HTTP_REFERER']
-			)
-		));
-		
-		//error_log(print_r($result,true));
-		
-		/*
-		<script type='text/javascript'>
-		//affwp_track_visit( <?php echo $affiliate_id; ?> , 'guest-publishing' );
-		</script>
-		*/
 
-		/*
+        /**/
+        $result = wp_remote_post(admin_url('admin-ajax.php'), array(
+            'method' => 'POST',
+            'timeout' => 45,
+            'redirection' => 5,
+            'httpversion' => '1.0',
+            'blocking' => true,
+            'headers' => array(),
+            'body' => array(
+                'action' => 'affwp_track_visit',
+                'affiliate' => $affiliate_id,
+                'campaign' => 'guest-publishing',
+                'url' => "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]",
+                'referrer' => $_SERVER['HTTP_REFERER']
+            )
+        ));
+
+        //error_log(print_r($result,true));
+
+        /*
+        <script type='text/javascript'>
+        //affwp_track_visit( <?php echo $affiliate_id; ?> , 'guest-publishing' );
+        </script>
+        */
+
+        /*
         $data = array(
             'user_id' => intval($author_id),
             'affiliate_id' => intval($affiliate_id),
@@ -111,15 +111,15 @@ class AFFWP_Authors {
             // 'reference'    => 'guest-publishing',
             //'context'      => ''
         );
-		
-		
-		//error_log(print_r($data,true));
+
+
+        //error_log(print_r($data,true));
 
         //$return = affwp_add_referral($data);
-		
-		//error_log(print_r($return,true));
-		
-		*/
+
+        //error_log(print_r($return,true));
+
+        */
     }
 }
 
