@@ -42,20 +42,19 @@ class AFFWP_Authors {
     }
 
     public static function cookie_author() {
-        ;
-        $author_id = get_the_author_id();
+
+        $author_id = get_the_author_meta('ID');
 
         /* if author not set then bail */
         if (!$author_id) {
             return;
         }
 
-
         /* get affiliate id from author id */
         $affiliate_id = affwp_get_affiliate_id($author_id);
 
         /* do not cookie internal traffic */
-        if (preg_match('/inboundnow.com/', $_SERVER['HTTP_REFERER'])) {
+        if (preg_match('/inboundnow.com/', wp_get_referer())) {
             return;
         }
 
@@ -65,13 +64,13 @@ class AFFWP_Authors {
             !$affiliate_id
             ||
             /* do not cookie the cookied */
-            isset($_COOKIE['ref_cookie'])
+            isset($_COOKIE['affwp_ref'])
             ||
             /* do not cookie if we detect visitor is already a lead */
             isset($_COOKIE['wp_lead_id'])
             ||
             /* do not cookie if homepage */
-            strstr(is_front_page())
+            is_front_page()
         ) {
             return;
         }
@@ -90,36 +89,15 @@ class AFFWP_Authors {
                 'affiliate' => $affiliate_id,
                 'campaign' => 'guest-publishing',
                 'url' => "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]",
-                'referrer' => $_SERVER['HTTP_REFERER']
+                'referrer' => wp_get_referer()
             )
         ));
 
-        //error_log(print_r($result,true));
-
-        /*
-        <script type='text/javascript'>
-        //affwp_track_visit( <?php echo $affiliate_id; ?> , 'guest-publishing' );
-        </script>
-        */
-
-        /*
-        $data = array(
-            'user_id' => intval($author_id),
-            'affiliate_id' => intval($affiliate_id),
-            'amount'       => '0',
-            'description'  => 'Guest Post Visit',
-            // 'reference'    => 'guest-publishing',
-            //'context'      => ''
-        );
+        /* set cookies */
+        setcookie('affwp_ref', $affiliate_id , time() + (60*60*24*30 ), '/');
+        setcookie('affwp_ref_visit_id', $result['body'] , time() + (60*60*24*30 ), '/');
 
 
-        //error_log(print_r($data,true));
-
-        //$return = affwp_add_referral($data);
-
-        //error_log(print_r($return,true));
-
-        */
     }
 }
 
