@@ -75,30 +75,56 @@ class AFFWP_Authors {
             return;
         }
 
+        ?>
+        <script>
+            jQuery(document).ready(function ($) {
+                // Affiliate ID
+                var ref = "<?php echo $affiliate_id; ?>";
+                var ref_cookie = jQuery.cookie('affwp_ref');
+                var credit_last = AFFWP.referral_credit_last;
 
-        /**/
-        $result = wp_remote_post(admin_url('admin-ajax.php'), array(
-            'method' => 'POST',
-            'timeout' => 45,
-            'redirection' => 5,
-            'httpversion' => '1.0',
-            'blocking' => true,
-            'headers' => array(),
-            'body' => array(
-                'action' => 'affwp_track_visit',
-                'affiliate' => $affiliate_id,
-                'campaign' => 'guest-publishing',
-                'url' => "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]",
-                'referrer' => wp_get_referer()
-            )
-        ));
+                if ('1' != credit_last && ref_cookie) {
+                    return;
+                }
 
-        /* set cookies */
-        setcookie('affwp_ref', $affiliate_id , time() + (60*60*24*30 ), '/');
-        setcookie('affwp_ref_visit_id', $result['body'] , time() + (60*60*24*30 ), '/');
+                /* If a referral var is present and a referral cookie is not already set */
+                if (ref && !ref_cookie) {
+                    affwp_track_visit(ref);
+                } else if ('1' == credit_last && ref && ref_cookie && ref !== ref_cookie) {
+                    jQuery.removeCookie('affwp_ref');
+                    affwp_track_visit(ref);
+                }
 
+                /* Track the visit */
+                function affwp_track_visit(affiliate_id) {
+                    // Set the cookie and expire it after x hours
+                    jQuery.cookie('affwp_ref', affiliate_id, {expires: AFFWP.expiration, path: '/'});
+                    // Fire an ajax request to log the hit
+                    jQuery.ajax({
+                        type: "POST",
+                        data: {
+                            action: 'affwp_track_visit',
+                            affiliate: affiliate_id,
+                            url: document.URL,
+                            referrer: document.referrer
+                        },
+                        url: affwp_scripts.ajaxurl,
+                        success: function (response) {
+                            jQuery.cookie('affwp_ref_visit_id', response, {expires: AFFWP.expiration, path: '/'});
+                        }
+                    }).fail(function (response) {
+                        if (window.console && window.console.log) {
+                            console.log(response);
+                        }
+                    });
+                }
+            });
+        </script>
+        <?php
 
     }
+
+
 }
 
 new AFFWP_Authors;
